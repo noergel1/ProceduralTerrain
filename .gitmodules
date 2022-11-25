@@ -1,0 +1,13 @@
+[submodule "Vuse/vendor/spdlog"]
+	path = Vuse/vendor/spdlog
+	url = https://github.com/gabime/spdlog
+[submodule "Vuse/vendor/GLFW"]
+	path = Vuse/vendor/GLFW
+	url = https://github.com/glfw/glfw
+[submodule "Vuse/vendor/imgui"]
+	path = Vuse/vendor/imgui
+	url = https://github.com/ocornut/imgui.git
+	branch = docking
+[submodule "Vuse/vendor/glm"]
+	path = Vuse/vendor/glm
+	url = https://github.com/g-truc/glm
