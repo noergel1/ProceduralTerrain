@@ -19,6 +19,7 @@ public:
 
 	void OnUpdate(Timestep timestep) override
 	{
+		m_Terrain.OnUpdate();
 	}
 
 	void OnEvent( Event& event) override
