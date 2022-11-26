@@ -3,7 +3,7 @@
 
 #include "Vuse/Log.h"
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <GLFW/glfw3.h>
 
 
@@ -18,7 +18,7 @@ namespace Vuse
 	void RenderContext::Init()
 	{
 		glfwMakeContextCurrent( m_WindowHandle );
-		int status = gladLoadGLLoader( (GLADloadproc)glfwGetProcAddress );
+		int status = gladLoadGL( glfwGetProcAddress );
 		VUSE_CORE_ASSERT( status, "Failed to initialize Glad!");
 	}
 

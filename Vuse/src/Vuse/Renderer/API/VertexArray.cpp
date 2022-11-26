@@ -1,7 +1,7 @@
 #include "vuse_pch.h"
 #include "VertexArray.h"
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 namespace Vuse
 {

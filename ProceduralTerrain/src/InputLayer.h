@@ -136,7 +136,7 @@ private:
 	float m_LastMouseX = 0.0f;
 	float m_LastMouseY = 0.0f;
 	float m_MouseAlreadyMoved = false;
-	bool m_IsMouseCaptured = true;
+	bool m_IsMouseCaptured = false;
 
 	// movement values
 	float m_MoveSpeed = 2.5f;

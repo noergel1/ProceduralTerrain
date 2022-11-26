@@ -9,7 +9,7 @@
 #include "Vuse/Events/MouseEvent.h"
 #include "Vuse/Events/KeyEvent.h"
 
-#include "glad/glad.h"
+#include "glad/gl.h"
 
 namespace Vuse
 {

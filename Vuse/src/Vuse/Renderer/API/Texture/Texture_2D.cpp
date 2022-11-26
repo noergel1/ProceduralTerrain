@@ -1,7 +1,7 @@
 #include "vuse_pch.h"
 
 #include "Texture_2D.h"
-#include <glad/glad.h>
+#include <glad/gl.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>

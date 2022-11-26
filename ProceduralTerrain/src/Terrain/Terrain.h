@@ -6,6 +6,8 @@
 #include "TerrainSettings.h"
 #include "NoiseGenerator.h"
 
+using namespace Vuse;
+
 class Terrain
 {
 public:
@@ -13,11 +15,22 @@ public:
 
 	void Generate();
 
-	NoiseGenerator Noise;
+	void OnImGuiRender();
+	
+	void GetNoiseImage();
 
 private:
+	NoiseGenerator m_Noise;
 	TerrainSettings m_Settings;
 	World m_Data;
+
+	// noise preview image
+	bool m_HasNoiseChanged = true;
+	Texture_2D* m_NoisePreview;
+	unsigned char* m_NoisePreviewData;
+	const unsigned int m_NoisePreviewWidth = 300;
+	const unsigned int m_NoisePreviewHeight = 300;
+
 
 	const Vuse::Camera& m_Camera;
 };

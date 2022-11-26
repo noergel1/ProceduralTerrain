@@ -1,7 +1,7 @@
 #include "vuse_pch.h"
 #include "Shader.h"
 
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <glm/ext.hpp>
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -109,7 +109,7 @@ namespace Vuse
 	{
         unsigned int uniformId = glGetUniformLocation(m_ID, name.c_str());
         if (uniformId == -1)
-            std::cout << "Couldnt find boolean Uniform " + name + "!\n";
+            VUSE_ERROR("Couldnt find boolean Uniform {0}", name);
         else
             glUniform1i(uniformId, (int)value);
 	}
@@ -118,7 +118,7 @@ namespace Vuse
 	{
         unsigned int uniformId = glGetUniformLocation(m_ID, name.c_str());
         if (uniformId == -1)
-            std::cout << "Couldnt find int Uniform " + name + "!\n";
+            VUSE_ERROR( "Couldnt find boolean Uniform {0}", name );
         else
             glUniform1i(uniformId, value);
 	}
@@ -127,7 +127,7 @@ namespace Vuse
 	{
         unsigned int uniformId = glGetUniformLocation(m_ID, name.c_str());
         if (uniformId == -1)
-            std::cout << "Couldnt find float Uniform " + name + "!\n";
+            VUSE_ERROR( "Couldnt find float Uniform {0}", name );
         else
             glUniform1f(uniformId, value);
 	}
@@ -136,7 +136,7 @@ namespace Vuse
 	{
         unsigned int uniformId = glGetUniformLocation(m_ID, name.c_str());
         if (uniformId == -1)
-            std::cout << "Couldnt find vec2 Uniform " + name + "!\n";
+            VUSE_ERROR( "Couldnt find vec2 Uniform {0}", name );
         else
             glUniform2f(uniformId, value.x, value.y);
 	}
@@ -145,7 +145,7 @@ namespace Vuse
     {
         unsigned int uniformId = glGetUniformLocation(m_ID, name.c_str());
         if (uniformId == -1)
-            std::cout << "Couldnt find vec2 Uniform " + name + "!\n";
+            VUSE_ERROR( "Couldnt find vec2 Uniform {0}", name );
         else
             glUniform2f(uniformId, x, y);
     }
@@ -154,7 +154,7 @@ namespace Vuse
 	{
         unsigned int uniformId = glGetUniformLocation(m_ID, name.c_str());
         if (uniformId == -1)
-            std::cout << "Couldnt find vec3 Uniform " + name + "!\n";
+            VUSE_ERROR( "Couldnt find vec3 Uniform {0}", name );
         else
             glUniform3f(uniformId, value.x, value.y, value.z);
 	}
@@ -163,7 +163,7 @@ namespace Vuse
     {
         unsigned int uniformId = glGetUniformLocation(m_ID, name.c_str());
         if (uniformId == -1)
-            std::cout << "Couldnt find vec3 Uniform " + name + "!\n";
+            VUSE_ERROR( "Couldnt find vec3 Uniform {0}", name );
         else
             glUniform3f(uniformId, x, y, z);
     }
@@ -181,7 +181,7 @@ namespace Vuse
     {
         unsigned int uniformId = glGetUniformLocation(m_ID, name.c_str());
         if (uniformId == -1)
-            std::cout << "Couldnt find vec4 Uniform " + name + "!\n";
+            VUSE_ERROR( "Couldnt find vec4 Uniform {0}", name );
         else
             glUniform4f(uniformId, x, y, z, w);
     }
@@ -190,7 +190,7 @@ namespace Vuse
 	{
         unsigned int uniformId = glGetUniformLocation(m_ID, name.c_str());
         if (uniformId == -1)
-            std::cout << "Couldnt find mat3 Uniform " + name + "!\n";
+            VUSE_ERROR( "Couldnt find mat3 Uniform {0}", name );
         else
             glUniformMatrix3fv(uniformId, 1, GL_FALSE, glm::value_ptr(value));
 	}
@@ -199,7 +199,7 @@ namespace Vuse
 	{
         unsigned int uniformId = glGetUniformLocation(m_ID, name.c_str());
         if (uniformId == -1)
-            std::cout << "Couldnt find mat4 Uniform " + name + "!\n";
+            VUSE_ERROR( "Couldnt find mat4 Uniform {0}", name );
         else
             glUniformMatrix4fv(uniformId, 1, GL_FALSE, glm::value_ptr(value));
 	}

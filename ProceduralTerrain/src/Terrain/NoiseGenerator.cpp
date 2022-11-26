@@ -14,21 +14,14 @@ NoiseGenerator::NoiseGenerator()
 	SetGain( 0.5f );
 	SetWeightedStrength( 0.0f );
 	SetPingPongEffectStrength( 2.0f );
-	EnableDomainWarp( false );
 	SetDomainWarpType( DomainWarpType::OpenSimplex2 );
 	SetDomainWarpAmplitude( 30.0f );
 }
 
-bool NoiseGenerator::OnImGuiRender()
-{
-	bool hasChanged = false;
-	if(ImGui::SliderFloat( "Frequency", &m_Frequency, 0.001, 0.15 )) hasChanged = true;
-	return hasChanged;
-}
-
 void NoiseGenerator::UpdateNoise()
 {
-	m_FastNoiseLite.SetFrequency( m_Frequency );			
+	m_FastNoiseLite.SetFrequency( p_Frequency );
+	m_FastNoiseLite.SetFractalGain( p_Gain );
 }
 
 float NoiseGenerator::GetPixel( float x, float y )
@@ -41,133 +34,78 @@ float NoiseGenerator::GetPixel( float x, float y, float z )
 	return m_FastNoiseLite.GetNoise( x, y, z );
 }
 
-NoiseType NoiseGenerator::GetNoiseType()
-{
-	return m_NoiseType;
-}
 void NoiseGenerator::SetNoiseType( NoiseType noiseType )
 {
 	m_FastNoiseLite.SetNoiseType(NoiseTypeToFNLEnum( noiseType ));
-	m_NoiseType = noiseType;
+	p_NoiseType = noiseType;
 }
 
-RotationType NoiseGenerator::GetRotationType()
-{
-	return m_RotationType;
-}
+
 void NoiseGenerator::SetRotationType( RotationType value )
 {
 	m_FastNoiseLite.SetRotationType3D( RotationTypeToFNLEnum( value ) );
-	m_RotationType = value;
+	p_RotationType = value;
 }
 
-unsigned int NoiseGenerator::GetSeed()
-{
-	return m_Seed;
-}
 void NoiseGenerator::SetSeed( unsigned int value )
 {
 	m_FastNoiseLite.SetSeed( value );
-	m_Seed = value;
+	p_Seed = value;
 }
 
-float NoiseGenerator::GetFrequency()
-{
-	return m_Frequency;
-}
 void NoiseGenerator::SetFrequency( float value )
 {
 	m_FastNoiseLite.SetFrequency( value );
-	m_Frequency = value;
+	p_Frequency = value;
 }
 
-FractalType NoiseGenerator::GetFractalType()
-{
-	return m_FractalType;
-}
 void NoiseGenerator::SetFractalType( FractalType fractalType )
 {
 	m_FastNoiseLite.SetFractalType( FractalTypeToFNLEnum( fractalType ) );
-	m_FractalType = fractalType;
+	p_FractalType = fractalType;
 }
 
-unsigned int NoiseGenerator::GetOctaves()
-{
-	return m_Octaves;
-}
 void NoiseGenerator::SetOctaves( unsigned int value )
 {
 	m_FastNoiseLite.SetFractalOctaves( value );
-	m_Octaves = value;
+	p_Octaves = value;
 }
 
-float NoiseGenerator::GetLacunarity()
-{
-	return m_Lacunarity;
-}
 void NoiseGenerator::SetLacunarity( float value )
 {
 	m_FastNoiseLite.SetFractalLacunarity( value );
-	m_Lacunarity = value;
+	p_Lacunarity = value;
 }
 
-float NoiseGenerator::GetGain()
-{
-	return m_Gain;
-}
 void NoiseGenerator::SetGain( float value )
 {
 	m_FastNoiseLite.SetFractalGain( value );
-	m_Gain = value;
+	p_Gain = value;
 }
 
-float NoiseGenerator::GetWeightedStrength()
-{
-	return m_WeightedStrength;
-}
 void NoiseGenerator::SetWeightedStrength( float value )
 {
 	m_FastNoiseLite.SetFractalWeightedStrength( value );
-	m_WeightedStrength = value;
+	p_WeightedStrength = value;
 }
 
-float NoiseGenerator::GetPingPongEffectStrength()
-{
-	return m_PingPongStrength;
-}
 void NoiseGenerator::SetPingPongEffectStrength( float value )
 {
 	m_FastNoiseLite.SetFractalPingPongStrength( value );
-	m_PingPongStrength = value;
+	p_PingPongStrength = value;
 }
 
-bool NoiseGenerator::IsDomainWarpEnabled()
-{
-	return m_DomainWarpEnabled;
-}
-void NoiseGenerator::EnableDomainWarp( bool value )
-{
-	m_DomainWarpEnabled = value;
-}
 
-DomainWarpType NoiseGenerator::GetDomainWarpType()
-{
-	return m_DomainWarpType;
-}
 void NoiseGenerator::SetDomainWarpType( DomainWarpType value )
 {
 	m_FastNoiseLite.SetDomainWarpType( DomainWarpTypeToFNLEnum( value ) );
-	m_DomainWarpType = value;
+	p_DomainWarpType = value;
 }
 
-float NoiseGenerator::GetDomainWarpAmplitude()
-{
-	return m_DomainWarpAmplitude;
-}
 void NoiseGenerator::SetDomainWarpAmplitude( float value )
 {
 	m_FastNoiseLite.SetDomainWarpAmp( value );
-	m_DomainWarpAmplitude = value;
+	p_DomainWarpAmplitude = value;
 }
 
 
