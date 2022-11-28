@@ -3,24 +3,43 @@
 #include <imgui/imgui.h>
 
 NoiseGenerator::NoiseGenerator()
-	:m_NoisePreviewData(new unsigned char[m_NoisePreviewWidth * m_NoisePreviewHeight])
+	:m_NoisePreviewHeight(300)
+	,m_NoisePreviewWidth(300)
+	,m_NoisePreviewData(new unsigned char[m_NoisePreviewWidth * m_NoisePreviewHeight])
 {
 	memset( m_NoisePreviewData, 0, m_NoisePreviewWidth * m_NoisePreviewHeight * sizeof(unsigned char) );
 	m_NoisePreview = new Texture_2D( m_NoisePreviewData, m_NoisePreviewWidth, m_NoisePreviewHeight, ColorSpace::RED, Texture_2D::TextureSettings() );
 
+	// General
+	/////////////
 	p_NoiseType = NoiseType::OpenSimplex2;
 	p_RotationType = RotationType::None;
 	p_Seed = 1550;
 	p_Frequency = 0.01;
+
+	// Fractals
+	/////////////
 	p_FractalType = FractalType::FBm;
 	p_Octaves = 5;
 	p_Lacunarity = 2.0f;
 	p_FractalGain = 0.5f;
 	p_WeightedStrength = 0.0f;
 	p_PingPongStrength = 2.0f;
-	p_DomainWarpEnabled = false;
+
+	// Cellular
+	/////////////
+	p_CellularDistanceFunc = CellularDistanceFunction::Euclidean;
+	p_CellularReturnType = CellularReturnType::Distance;
+	p_CellularJitter = 1.0f;
+
+	// Domain Warp
+	/////////////
+	p_DomainWarpEnabled = false; 
 	p_DomainWarpType = DomainWarpType::OpenSimplex2;
 	p_DomainWarpAmplitude = 30.0f;
+
+
+	m_HasNoiseChanged = true;
 }
 
 float NoiseGenerator::GetPixel( float x, float y )
@@ -36,15 +55,18 @@ float NoiseGenerator::GetPixel( float x, float y, float z )
 
 void NoiseGenerator::UpdateNoiseSettings()
 {
-	SetSeed( p_Seed );
-	SetFrequency( p_Frequency );
-	SetNoiseType( p_NoiseType );
-	SetFractalType( p_FractalType );
-	SetOctaves( p_Octaves );
-	SetLacunarity( p_Lacunarity );
-	SetFractalGain( p_FractalGain );
-	SetWeightedStrength( p_WeightedStrength );
-	SetPingPongEffectStrength( p_PingPongStrength );
+	m_FastNoiseLite.SetSeed( p_Seed );
+	m_FastNoiseLite.SetFrequency( p_Frequency );
+	m_FastNoiseLite.SetNoiseType( NoiseTypeToFNLEnum( p_NoiseType ) );
+	m_FastNoiseLite.SetFractalType( FractalTypeToFNLEnum(p_FractalType) );
+	m_FastNoiseLite.SetFractalOctaves( p_Octaves );
+	m_FastNoiseLite.SetFractalLacunarity( p_Lacunarity );
+	m_FastNoiseLite.SetFractalGain( p_FractalGain );
+	m_FastNoiseLite.SetFractalWeightedStrength( p_WeightedStrength );
+	m_FastNoiseLite.SetFractalPingPongStrength( p_PingPongStrength );
+	m_FastNoiseLite.SetCellularDistanceFunction( CellularDistanceFuncToFNLEnum(p_CellularDistanceFunc) );
+	m_FastNoiseLite.SetCellularReturnType( CellularReturnTypeToFNLEnum( p_CellularReturnType ) );
+	m_FastNoiseLite.SetCellularJitter( p_CellularJitter );
 }
 
 void NoiseGenerator::UpdateNoisePreview()
@@ -123,76 +145,33 @@ void NoiseGenerator::OnImGuiRender() {
 	/////////////
 	ImGui::Dummy( Padding );
 	ImGui::Text( "Cellular" );
-
-	// Domain Warp
-	/////////////
-	ImGui::Dummy( Padding );
-	ImGui::Text( "Domain Warp" );
-	if(ImGui::Checkbox( "Enabled", &p_DomainWarpEnabled )) m_HasNoiseChanged = true;
+	std::string SelectedDistanceFuncLabel = CellularDistanceFuncToString(p_CellularDistanceFunc);
+	if (ImGui::BeginCombo( "Distance Function", SelectedDistanceFuncLabel.c_str()  ))
+	{
+		if(ImGui::Selectable( CellularDistanceFuncToString(CellularDistanceFunction::Euclidean).c_str(), false)) p_CellularDistanceFunc = CellularDistanceFunction::Euclidean;
+		if(ImGui::Selectable( CellularDistanceFuncToString(CellularDistanceFunction::EuclideanSq).c_str(), false)) p_CellularDistanceFunc = CellularDistanceFunction::EuclideanSq;
+		if(ImGui::Selectable( CellularDistanceFuncToString(CellularDistanceFunction::Hybrid).c_str(), false)) p_CellularDistanceFunc = CellularDistanceFunction::Hybrid;
+		if(ImGui::Selectable( CellularDistanceFuncToString(CellularDistanceFunction::Manhattan).c_str(), false)) p_CellularDistanceFunc = CellularDistanceFunction::Manhattan;
+		ImGui::EndCombo();
+		m_HasNoiseChanged = true;
+	}
+	std::string SelectedReturnTypeLabel = CellularReturnTypeToString( p_CellularReturnType );
+	if (ImGui::BeginCombo( "Return Type", SelectedReturnTypeLabel.c_str()  ))
+	{
+		if(ImGui::Selectable( CellularReturnTypeToString(CellularReturnType::CellValue).c_str(), false)) p_CellularReturnType = CellularReturnType::CellValue;
+		if(ImGui::Selectable( CellularReturnTypeToString(CellularReturnType::Distance).c_str(), false)) p_CellularReturnType = CellularReturnType::Distance;
+		if(ImGui::Selectable( CellularReturnTypeToString(CellularReturnType::Distance2).c_str(), false)) p_CellularReturnType = CellularReturnType::Distance2;
+		if(ImGui::Selectable( CellularReturnTypeToString(CellularReturnType::Distance2Add).c_str(), false)) p_CellularReturnType = CellularReturnType::Distance2Add;
+		if(ImGui::Selectable( CellularReturnTypeToString(CellularReturnType::Distance2Div).c_str(), false)) p_CellularReturnType = CellularReturnType::Distance2Div;
+		if(ImGui::Selectable( CellularReturnTypeToString(CellularReturnType::Distance2Mul).c_str(), false)) p_CellularReturnType = CellularReturnType::Distance2Mul;
+		if(ImGui::Selectable( CellularReturnTypeToString(CellularReturnType::Distance2Sub).c_str(), false)) p_CellularReturnType = CellularReturnType::Distance2Sub;
+		ImGui::EndCombo();
+		m_HasNoiseChanged = true;
+	}
+	if (ImGui::SliderFloat( "Jitter", &p_CellularJitter, 0.001f, 5.0f )) m_HasNoiseChanged = true;
 	
 }
 
-void NoiseGenerator::SetNoiseType( NoiseType noiseType )
-{
-	m_FastNoiseLite.SetNoiseType(NoiseTypeToFNLEnum( noiseType ));
-}
-
-
-void NoiseGenerator::SetRotationType( RotationType value )
-{
-	m_FastNoiseLite.SetRotationType3D( RotationTypeToFNLEnum( value ) );
-}
-
-void NoiseGenerator::SetSeed( int value )
-{
-	m_FastNoiseLite.SetSeed( value );
-}
-
-void NoiseGenerator::SetFrequency( float value )
-{
-	m_FastNoiseLite.SetFrequency( value );
-}
-
-void NoiseGenerator::SetFractalType( FractalType fractalType )
-{
-	m_FastNoiseLite.SetFractalType( FractalTypeToFNLEnum( fractalType ) );
-}
-
-void NoiseGenerator::SetOctaves( unsigned int value )
-{
-	m_FastNoiseLite.SetFractalOctaves( value );
-}
-
-void NoiseGenerator::SetLacunarity( float value )
-{
-	m_FastNoiseLite.SetFractalLacunarity( value );
-}
-
-void NoiseGenerator::SetFractalGain( float value )
-{
-	m_FastNoiseLite.SetFractalGain( value );
-}
-
-void NoiseGenerator::SetWeightedStrength( float value )
-{
-	m_FastNoiseLite.SetFractalWeightedStrength( value );
-}
-
-void NoiseGenerator::SetPingPongEffectStrength( float value )
-{
-	m_FastNoiseLite.SetFractalPingPongStrength( value );
-}
-
-
-void NoiseGenerator::SetDomainWarpType( DomainWarpType value )
-{
-	m_FastNoiseLite.SetDomainWarpType( DomainWarpTypeToFNLEnum( value ) );
-}
-
-void NoiseGenerator::SetDomainWarpAmplitude( float value )
-{
-	m_FastNoiseLite.SetDomainWarpAmp( value );
-}
 
 
 FastNoiseLite::NoiseType NoiseGenerator::NoiseTypeToFNLEnum( NoiseType noiseType )
@@ -292,5 +271,53 @@ std::string NoiseGenerator::RotationTypeToString( RotationType rotationType )
 		case RotationType::None: return "None";
 		case RotationType::ImproveXYPlanes: return "ImproveXYPlanes";
 		case RotationType::ImproveXZPlanes: return "ImproveXZPlanes";
+	}
+}
+
+FastNoiseLite::CellularDistanceFunction NoiseGenerator::CellularDistanceFuncToFNLEnum( CellularDistanceFunction distanceFunction ) 
+{
+	switch (distanceFunction)
+	{
+		case CellularDistanceFunction::Euclidean: return FastNoiseLite::CellularDistanceFunction_Euclidean;
+		case CellularDistanceFunction::EuclideanSq: return FastNoiseLite::CellularDistanceFunction_EuclideanSq;
+		case CellularDistanceFunction::Hybrid: return FastNoiseLite::CellularDistanceFunction_Hybrid;
+		case CellularDistanceFunction::Manhattan: return FastNoiseLite::CellularDistanceFunction_Manhattan;
+	}
+}
+std::string NoiseGenerator::CellularDistanceFuncToString( CellularDistanceFunction distanceFunction ) 
+{
+	switch (distanceFunction)
+	{
+		case CellularDistanceFunction::Euclidean: return "Euclidean";
+		case CellularDistanceFunction::EuclideanSq: return "EuclideanSq";
+		case CellularDistanceFunction::Hybrid: return "Hybrid";
+		case CellularDistanceFunction::Manhattan: return "Manhattan";
+	}
+}
+
+FastNoiseLite::CellularReturnType NoiseGenerator::CellularReturnTypeToFNLEnum( CellularReturnType returnType ) 
+{
+	switch (returnType)
+	{
+		case CellularReturnType::CellValue: return FastNoiseLite::CellularReturnType_CellValue;
+		case CellularReturnType::Distance: return FastNoiseLite::CellularReturnType_Distance;
+		case CellularReturnType::Distance2: return FastNoiseLite::CellularReturnType_Distance2;
+		case CellularReturnType::Distance2Add: return FastNoiseLite::CellularReturnType_Distance2Add;
+		case CellularReturnType::Distance2Div: return FastNoiseLite::CellularReturnType_Distance2Div;
+		case CellularReturnType::Distance2Mul: return FastNoiseLite::CellularReturnType_Distance2Mul;
+		case CellularReturnType::Distance2Sub: return FastNoiseLite::CellularReturnType_Distance2Sub;
+	}
+}
+std::string NoiseGenerator::CellularReturnTypeToString( CellularReturnType returnType ) 
+{
+	switch (returnType)
+	{
+		case CellularReturnType::CellValue: return "CellValue";
+		case CellularReturnType::Distance: return "Distance";
+		case CellularReturnType::Distance2: return "Distance2";
+		case CellularReturnType::Distance2Add: return "Distance2Add";
+		case CellularReturnType::Distance2Div: return "Distance2Div";
+		case CellularReturnType::Distance2Mul: return "Distance2Mul";
+		case CellularReturnType::Distance2Sub: return "Distance2Sub";
 	}
 }

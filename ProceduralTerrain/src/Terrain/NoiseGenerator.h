@@ -16,7 +16,6 @@ enum class NoiseType
 	Value
 };
 
-
 enum class FractalType
 {
 	None,
@@ -49,6 +48,23 @@ enum class RotationType
 	ImproveXZPlanes,
 };
 
+enum class CellularDistanceFunction {
+	Euclidean,
+	EuclideanSq,
+	Hybrid,
+	Manhattan
+};
+
+enum class CellularReturnType {
+	CellValue,
+	Distance,
+	Distance2,
+	Distance2Add,
+	Distance2Div,
+	Distance2Mul,
+	Distance2Sub,
+};
+
 class NoiseGenerator
 {
 public:
@@ -60,6 +76,10 @@ public:
 	void OnUpdate();
 	void OnImGuiRender();
 
+	float GetPixel(float x, float y);
+	float GetPixel(float x, float y, float z);
+
+public:
 	// General
 	////////////
 	NoiseType p_NoiseType;
@@ -76,16 +96,17 @@ public:
 	float p_WeightedStrength;
 	float p_PingPongStrength;
 
+	// Cellular
+	////////////
+	CellularDistanceFunction p_CellularDistanceFunc;
+	CellularReturnType p_CellularReturnType;
+	float p_CellularJitter;
+
 	// Domain Warp
 	////////////
 	bool p_DomainWarpEnabled;
 	DomainWarpType p_DomainWarpType;
 	float p_DomainWarpAmplitude;
-
-
-	float GetPixel(float x, float y);
-	float GetPixel(float x, float y, float z);
-
 	
 private:
 	static FastNoiseLite::NoiseType NoiseTypeToFNLEnum( NoiseType noiseType );
@@ -98,29 +119,18 @@ private:
 	static std::string DomainWarpTypeToString( DomainWarpType domainWarpType );
 	static FastNoiseLite::RotationType3D RotationTypeToFNLEnum( RotationType rotationType );
 	static std::string RotationTypeToString( RotationType rotationType );
-
-	void SetNoiseType( NoiseType noiseType );
-	void SetRotationType( RotationType value );
-	void SetSeed( int value );
-	void SetFrequency( float value );
-	void SetFractalType( FractalType fractalType );
-	void SetOctaves( unsigned int value );
-	void SetLacunarity( float value );
-	void SetFractalGain( float value );
-	void SetWeightedStrength( float value );
-	void SetPingPongEffectStrength( float value );
-
-	void SetDomainWarpType( DomainWarpType value );
-	void SetDomainWarpAmplitude( float value );
-
+	static FastNoiseLite::CellularDistanceFunction CellularDistanceFuncToFNLEnum( CellularDistanceFunction distanceFunction );
+	static std::string CellularDistanceFuncToString( CellularDistanceFunction distanceFunction );
+	static FastNoiseLite::CellularReturnType CellularReturnTypeToFNLEnum( CellularReturnType returnType );
+	static std::string CellularReturnTypeToString( CellularReturnType returnType  );
 
 private:
 	FastNoiseLite m_FastNoiseLite;
 
 	// noise preview image
-	bool m_HasNoiseChanged = true;
+	bool m_HasNoiseChanged;
 	Texture_2D* m_NoisePreview;
 	unsigned char* m_NoisePreviewData;
-	const unsigned int m_NoisePreviewWidth = 300;
-	const unsigned int m_NoisePreviewHeight = 300;
+	const unsigned int m_NoisePreviewWidth;
+	const unsigned int m_NoisePreviewHeight;
 };
