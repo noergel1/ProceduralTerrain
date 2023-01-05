@@ -1,98 +1,83 @@
 #pragma once
 
-#include "NoiseGenerator.h"
-#include "VoxelData.h"
+#include "Node.h"
+#include "Chunk.h"
+#include "LocationalCode.h"
 
-#include <queue>
-#include <list>
+#include <memory>
+#include <map>
+#include <set>
+
+struct VoxelPos
+{
+	VoxelPos(int16_t _x, int16_t _y, int16_t _z)
+		:x(_x)
+		,y(_y)
+		,z(_z)
+	{ }
+
+	int16_t x;
+	int16_t y;
+	int16_t z;
+};
+
+struct Voxel
+{
+	Voxel(int16_t _x, int16_t _y, int16_t _z, unsigned char _r, unsigned char _g, unsigned char _b)
+		:pos(_x,_y,_z)
+		,data(_r,_g,_b)
+	{ }
+
+	Voxel(VoxelPos _pos, unsigned char _r, unsigned char _g, unsigned char _b)
+		:pos(_pos)
+		,data(_r,_g,_b)
+	{ }
+
+	Voxel(int16_t _x, int16_t _y, int16_t _z, VoxelData _data)
+		:pos(_x,_y,_z)
+		,data(_data)
+	{ }
 
 
-namespace Octree {
-
-	enum class Octant : unsigned char {
-		O1 = 0x01,	//	=	0b00000001
-		O2 = 0x02,	//	=	0b00000010
-		O3 = 0x04,	//	=	0b00000100
-		O4 = 0x08,	//	=	0b00001000
-		O5 = 0x10,	//	=	0b00010000
-		O6 = 0x20,	//	=	0b00100000
-		O7 = 0x40,	//	=	0b01000000
-		O8 = 0x80,	//	=	0b10000000
-	};
-	glm::vec3 GetOctantOffset( Octant _octant );
+	VoxelPos pos;
+	VoxelData data;
+};
 
 
-	uint32_t abs_svo( int32_t _n ) {
-		return _n < 0 ? -_n - 1 : _n;
-	}
-	bool comp_against_svo_bounds( int32_t _x, int32_t _y, int32_t _z, int32_t _d ) {
-		return (abs_svo( _x ) | abs_svo( _y ) | abs_svo( _z )) >= _d;
-	}
+class Octree
+{
 
-	
-	struct VoxelPos {
-		VoxelPos( int32_t _x, int32_t _y, int32_t _z ) 
-			:x(_x)
-			,y(_y)
-			,z(_z)
-		{}
+public:
+	Octree( uint16_t _maxDepth );
 
-		VoxelPos& operator*( glm::vec3 vec ) {
-			x = 
-		}
+	// sorts and inserts the voxels in queue
+	void Update();
 
-		int32_t x;
-		int32_t y;
-		int32_t z;
-	}; 
- 
+	void InsertOld( Voxel _voxel );
+	void InsertNew( Voxel _voxel );
+	VoxelData* GetVoxel( VoxelPos _pos );
 
-	class Node 
-	{
-	public:
-		Node();
-		Node( unsigned int _size );
-		Node( VoxelPos* _pos, unsigned int _size, std::vector<VoxelPos*> _voxelList);
+private:
+	void UpdateChunkMeshes();
+	void ClearInsertQueue();
 
-		~Node() { Clear(); }
+	uint32_t GetLocationalCode( int16_t _x, int16_t _y, int16_t _z );
+	glm::ivec3 GetPos( uint32_t _locCode, uint16_t _depth );
+	uint32_t Interleaf( uint16_t x, uint16_t y, uint16_t z );
 
-		void Update();
+	bool IsInBounds( VoxelPos _pos );
+	uint32_t Abs_SVO( int32_t _val );
 
-		bool IsPosInBounds( VoxelPos _pos );
+	void handleNonExistingBranch( Node** _curNode, VoxelData _data, uint16_t _curDepth, uint32_t _locCode );
 
-		// rebuilds whole octree
-		void BuildFrom2DNoise();
-		void BuildFrom3DNoise();
+private:
+	Node* m_Root;
 
-		bool Insert( VoxelPos _voxel );
-		bool Insert( std::vector<VoxelPos*> _voxels );
+	std::set<uint32_t> m_ChangedChunks;
+	std::map<uint32_t, Chunk> m_Chunks;
 
-		static void SetNoise( NoiseGenerator* _noise ) { s_Noise = _noise; }
-		static NoiseGenerator* GetNoise() { return s_Noise; }
+	std::map<uint32_t, VoxelData> m_InsertQueue;
 
-	private:
-		void Clear();
-
-		VoxelPos WorldToSVOCoord( VoxelPos _pos );
-
-	public:
-		static const unsigned int s_MaxDepth = 15; 
-
-	private:
-		Node* m_Parent;
-		Node* m_Children[8];
-
-		VoxelPos* m_Pos;
-		unsigned int m_Radius;
-	
-		// bitmask identifying which child nodes exist
-		unsigned char m_Voxel;
-		unsigned char m_ActiveChildren;
-
-		// objects to be inserted into octree
-		std::queue<VoxelPos*> m_Queue;
-
-		// noise generator for world generation
-		static NoiseGenerator* s_Noise;
-	};
-}
+	const uint16_t m_MaxDepth;
+	const uint16_t m_MaxCoord;
+};

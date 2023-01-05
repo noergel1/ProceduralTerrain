@@ -2,8 +2,7 @@
 
 #include "Vuse.h"
 
-#include "World.h"
-#include "TerrainSettings.h"
+#include "Octree.h"
 #include "NoiseGenerator.h"
 
 using namespace Vuse;
@@ -22,8 +21,8 @@ public:
 
 private:
 	NoiseGenerator m_Noise;
-	TerrainSettings m_Settings;
-	World m_Data;
+	Octree m_World;
+
 
 
 

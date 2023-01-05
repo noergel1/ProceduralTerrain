@@ -1,14 +1,42 @@
 #pragma once
 
-#include "TerrainSettings.h"
+#include "Vuse.h"
+#include "Node.h"
 
-class Chunk
-{
+#include <memory>
+
+using namespace Vuse;
+
+class Chunk {
 public:
-	Chunk();
+	Chunk(Node* _node) 
+		:m_Node(_node)
+		,m_VAO()
+		,m_VBO()
+		,m_EBO()
+		,m_IsGenerated(false)
+	{
+		Update();
+	}
 
-	void Clear();
+	void Update();
+
+	std::vector<std::vector<uint16_t>>* GetVoxels();
+	void Iterate( std::vector<std::vector<uint16_t>>* _voxels, Node* _node, uint16_t _curDepth, uint32_t _curLocCode );
+
+public:
+	static const uint16_t s_ChunkDepth = 5;
+	static const uint32_t s_DefaultMemAllocationSize = 200;
 
 private:
-	float m_Voxels[CHUNK_WIDTH][WORLD_HEIGHT][CHUNK_HEIGHT];
+	Node* m_Node;
+	VertexArray m_VAO;
+	IndexBuffer m_EBO;
+	VertexBuffer m_VBO;
+
+	uint32_t* m_VerticeBuffer;
+	uint16_t m_IndiceCount;
+
+	bool m_IsGenerated;
+
 };
